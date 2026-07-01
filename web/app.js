@@ -1,4 +1,5 @@
-const DEFAULT_DATA_URL = "../data/questions.sample.json";
+const REAL_DATA_URL = "../data/questions.json";
+const SAMPLE_DATA_URL = "../data/questions.sample.json";
 
 const el = (id) => document.getElementById(id);
 
@@ -21,14 +22,25 @@ function setStatus(msg) {
   el("loadStatus").textContent = msg;
 }
 
+async function tryFetch(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("fetch failed");
+  return res.json();
+}
+
 async function loadDefault() {
   try {
-    const res = await fetch(DEFAULT_DATA_URL);
-    if (!res.ok) throw new Error("fetch failed");
-    rawQuestions = await res.json();
-    setStatus(`샘플 문제 ${rawQuestions.length}개를 불러왔습니다. 다른 문제를 쓰려면 위에서 JSON 파일을 선택하세요.`);
+    rawQuestions = await tryFetch(REAL_DATA_URL);
+    setStatus(`문제 ${rawQuestions.length}개를 불러왔습니다 (data/questions.json). 다른 문제를 쓰려면 위에서 JSON 파일을 선택하세요.`);
+    return;
   } catch (e) {
-    setStatus("샘플 문제를 자동으로 불러오지 못했습니다 (file:// 로 열면 발생 가능). 위에서 JSON 파일을 직접 선택해주세요.");
+    // data/questions.json이 없으면(아직 변환 전) 샘플로 폴백
+  }
+  try {
+    rawQuestions = await tryFetch(SAMPLE_DATA_URL);
+    setStatus(`샘플 문제 ${rawQuestions.length}개를 불러왔습니다. run_local.bat(또는 .sh)로 실제 덤프를 변환하면 자동으로 그 문제가 로드됩니다.`);
+  } catch (e) {
+    setStatus("문제를 자동으로 불러오지 못했습니다 (file:// 로 열면 발생 가능). 위에서 JSON 파일을 직접 선택해주세요.");
   }
 }
 
