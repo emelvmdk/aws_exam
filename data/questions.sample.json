@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "question": "A company needs to migrate a large on-premises data warehouse to AWS with minimal downtime. Which service should a Solutions Architect recommend?",
+    "options": [
+      "AWS Database Migration Service (DMS) with ongoing replication",
+      "AWS Snowball for a one-time offline transfer only",
+      "Amazon S3 Transfer Acceleration",
+      "AWS Direct Connect with manual dump and restore"
+    ],
+    "correct": [0]
+  },
+  {
+    "id": 2,
+    "question": "Which two AWS services can be used to build a serverless event-driven architecture? (Choose two.)",
+    "options": [
+      "AWS Lambda",
+      "Amazon EventBridge",
+      "Amazon EC2 Auto Scaling",
+      "AWS Direct Connect"
+    ],
+    "correct": [0, 1]
+  },
+  {
+    "id": 3,
+    "question": "A Solutions Architect wants the most cost-effective storage class for data accessed once a quarter with a minimum 90-day retention requirement. Which S3 storage class should be used?",
+    "options": [
+      "S3 Standard",
+      "S3 Intelligent-Tiering",
+      "S3 Glacier Flexible Retrieval",
+      "S3 Standard-IA"
+    ],
+    "correct": [3]
+  }
+]

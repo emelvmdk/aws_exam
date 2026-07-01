@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS 시험 문제풀이</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <h1>AWS 자격증 문제풀이</h1>
+  <p class="subtitle">문제와 보기 순서를 매번 랜덤으로 섞어서 풀 수 있는 연습 프로그램입니다.</p>
+
+  <section id="setup" class="panel">
+    <label for="fileInput">문제 JSON 파일 선택 (parser로 변환한 파일)</label>
+    <input type="file" id="fileInput" accept="application/json">
+    <p class="progress" id="loadStatus">기본 샘플 문제(questions.sample.json)를 불러오는 중...</p>
+
+    <label for="countInput">풀 문제 수 (비워두면 전체)</label>
+    <input type="number" id="countInput" min="1" placeholder="전체">
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="shuffleOptions" checked>
+      <label for="shuffleOptions" style="margin:0;">보기 순서도 랜덤으로 섞기</label>
+    </div>
+
+    <button id="startBtn">시작하기</button>
+  </section>
+
+  <section id="quiz" class="panel hidden">
+    <p class="progress" id="progressText"></p>
+    <div class="question-text" id="questionText"></div>
+    <div id="optionsList"></div>
+    <div class="feedback hidden" id="feedback"></div>
+    <div class="btn-row">
+      <button id="submitBtn">제출</button>
+      <button id="nextBtn" class="hidden">다음 문제</button>
+    </div>
+  </section>
+
+  <section id="result" class="panel hidden">
+    <h2>결과</h2>
+    <div class="score-big" id="scoreText"></div>
+    <div id="reviewList"></div>
+    <button id="restartBtn" class="secondary">다시 풀기 (새로 섞기)</button>
+  </section>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
