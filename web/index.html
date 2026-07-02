@@ -8,35 +8,172 @@
 </head>
 <body>
 <div class="container">
-  <h1>AWS 자격증 문제풀이</h1>
-  <p class="subtitle">문제와 보기 순서를 매번 랜덤으로 섞어서 풀 수 있는 연습 프로그램입니다.</p>
+  <div id="pageHeader" class="page-header">
+    <h1 id="pageTitle">AWS 자격증 문제풀이</h1>
+    <p class="subtitle" id="pageSubtitle">기본은 파일 순서 그대로, 원하면 문제/보기 순서를 랜덤으로 섞어서 풀 수 있는 연습 프로그램입니다.</p>
+  </div>
 
   <section id="setup" class="panel">
-    <label for="fileInput">문제 JSON 파일 선택 (parser로 변환한 파일)</label>
-    <input type="file" id="fileInput" accept="application/json">
     <p class="progress" id="loadStatus">기본 샘플 문제(questions.sample.json)를 불러오는 중...</p>
 
     <label for="countInput">풀 문제 수 (비워두면 전체)</label>
     <input type="number" id="countInput" min="1" placeholder="전체">
 
     <div class="checkbox-row">
+      <input type="checkbox" id="shuffleQuestions">
+      <label for="shuffleQuestions" style="margin:0;">문제 순서 랜덤으로 섞기 (기본은 파일 순서 그대로)</label>
+    </div>
+
+    <div class="checkbox-row">
       <input type="checkbox" id="shuffleOptions" checked>
       <label for="shuffleOptions" style="margin:0;">보기 순서도 랜덤으로 섞기</label>
     </div>
 
+    <label>모드 선택</label>
+    <div class="mode-row">
+      <label class="mode-option">
+        <input type="radio" name="mode" id="modeStudy" value="study" checked>
+        <span><strong>학습 모드</strong> - 문제마다 정답을 바로 확인</span>
+      </label>
+      <label class="mode-option">
+        <input type="radio" name="mode" id="modeExam" value="exam">
+        <span><strong>실전 모드</strong> - Pearson VUE 시험 화면 스타일. 제한 시간 안에 다 풀고 마지막에 한번에 채점</span>
+      </label>
+    </div>
+
+    <div id="examOptions" class="hidden">
+      <label for="examMinutes">제한 시간 (분, 비워두면 시간 제한 없음)</label>
+      <input type="number" id="examMinutes" min="1" placeholder="예: 90">
+    </div>
+
     <button id="startBtn">시작하기</button>
+
+    <details class="advanced">
+      <summary>고급: 다른 문제 파일 사용</summary>
+      <label for="fileInput">문제 JSON 파일 선택 (parser로 변환한 파일)</label>
+      <input type="file" id="fileInput" accept="application/json">
+    </details>
   </section>
 
   <section id="quiz" class="panel hidden">
-    <p class="progress" id="progressText"></p>
-    <div class="question-text" id="questionText"></div>
-    <div id="optionsList"></div>
-    <div class="feedback hidden" id="feedback"></div>
-    <div class="btn-row">
+    <div id="examTopbar" class="exam-topbar hidden">
+      <span id="examTopbarTitle">AWS 자격증 문제풀이 - 실전 모드</span>
+      <div id="examTopbarRight" class="exam-topbar-right hidden">
+        <div id="examTimer" class="exam-timer hidden">⏱ Time Remaining <span id="timeRemaining">--:--</span></div>
+        <div class="exam-counter" id="examCounterWrap"><span id="examCounterText"></span></div>
+      </div>
+    </div>
+    <div id="examSubbar" class="exam-subbar hidden">
+      <div class="exam-subbar-left">
+        <button id="viewEnglishBtn" class="view-english-btn" type="button">🌐 View in English</button>
+      </div>
+      <div class="exam-subbar-right">
+        <button id="flagBtn" class="flag-btn" type="button">🚩 Flag for Review</button>
+      </div>
+    </div>
+
+    <div class="exam-body hidden" id="examIntroBody">
+      <div class="exam-intro">
+        <p class="exam-intro-lead"><strong id="examIntroLead">Pearson VUE Practice Exam을 시작하려고 합니다.</strong></p>
+        <p id="examIntroTime" class="exam-intro-line"></p>
+        <p class="exam-intro-line">아래 <b>Next</b> 버튼을 클릭해 시험을 시작하세요.</p>
+      </div>
+    </div>
+
+    <div class="exam-body" id="examBody">
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-meta">
+          <span class="progress" id="progressText"></span>
+          <span class="score-tally" id="scoreTally"></span>
+        </div>
+      </div>
+      <div class="question-text" id="questionText"></div>
+      <div id="optionsList"></div>
+      <div class="feedback hidden" id="feedback"></div>
+
+      <div id="englishPopup" class="english-popup hidden">
+        <div class="english-popup-header">
+          <span>🌐 English</span>
+          <button id="englishPopupClose" class="modal-x" type="button">✕</button>
+        </div>
+        <div class="english-popup-body">
+          <div id="englishPopupQuestion" class="eo-question"></div>
+          <div id="englishPopupOptions"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="exam-body hidden" id="sectionReviewView">
+      <div class="section-review-title">Section Review</div>
+      <details class="review-instructions" open>
+        <summary>Instructions</summary>
+        <p>
+          아래는 지금까지 답한 내용의 요약입니다. 문제를 세 가지 방법으로 검토할 수 있습니다.
+          오른쪽 아래 버튼으로 선택하세요.
+        </p>
+        <ol>
+          <li>모든 문제와 답을 검토합니다.</li>
+          <li>아직 완료하지 않은 문제만 검토합니다.</li>
+          <li>검토 표시(Flag)를 해둔 문제만 검토합니다.</li>
+        </ol>
+      </details>
+      <div class="review-section-header">
+        <span>Content Sections Section</span>
+        <span id="sectionReviewSummary"></span>
+      </div>
+      <div id="sectionReviewGrid" class="review-grid"></div>
+    </div>
+
+    <div class="btn-row" id="studyBtnRow">
       <button id="submitBtn">제출</button>
       <button id="nextBtn" class="hidden">다음 문제</button>
     </div>
+
+    <div id="examIntroBottombar" class="exam-bottombar hidden">
+      <button id="endExamIntroBtn" class="exam-btn" type="button">⇥ End Exam</button>
+      <div class="exam-bottombar-right">
+        <button id="examIntroNextBtn" class="exam-btn primary" type="button">Next ▶</button>
+      </div>
+    </div>
+
+    <div id="examBottombar" class="exam-bottombar hidden">
+      <button id="helpBtn" class="exam-btn" type="button">❓ Help</button>
+      <div class="exam-bottombar-right">
+        <button id="prevBtn" class="exam-btn hidden" type="button">◀ Previous</button>
+        <button id="navigatorBtn" class="exam-btn" type="button">⚙ Navigator</button>
+        <button id="examNextBtn" class="exam-btn primary" type="button">Next ▶</button>
+      </div>
+    </div>
+
+    <div id="sectionReviewBottombar" class="exam-bottombar hidden">
+      <button id="endReviewBtn" class="exam-btn primary" type="button">⇥ End Review</button>
+      <div class="exam-bottombar-right">
+        <button id="reviewAllBtn" class="exam-btn" type="button">📋 Review All</button>
+        <button id="reviewIncompleteBtn" class="exam-btn" type="button">✕ Review Incomplete</button>
+        <button id="reviewFlaggedBtn" class="exam-btn" type="button">🚩 Review Flagged</button>
+      </div>
+    </div>
   </section>
+
+  <div id="navigatorModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>⚙ Navigator - 클릭하면 해당 문제로 이동합니다</span>
+        <button id="navigatorCloseX" class="modal-x" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <table id="navigatorTable">
+          <thead><tr><th>문제 #</th><th>상태</th><th>검토 표시</th></tr></thead>
+          <tbody id="navigatorTbody"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <span id="navigatorSummary"></span>
+        <button id="navigatorCloseBtn" class="exam-btn" type="button">✕ Close</button>
+      </div>
+    </div>
+  </div>
 
   <section id="result" class="panel hidden">
     <h2>결과</h2>

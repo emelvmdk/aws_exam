@@ -3,3 +3,8 @@ __pycache__/
 data/questions.json
 data/raw/*
 !data/raw/.gitkeep
+data/library/
+build/
+dist/
+*.spec
+*.exe
